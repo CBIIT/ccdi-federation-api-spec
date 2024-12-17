@@ -39,6 +39,6 @@ Read more about CCDI Federation API in the [blog](https://cbiit.github.io/ccdi-f
 ## Contribute to CCDI Data Federation Resource
 We invite the community to join us in empowering research through CCDI data federation. Organizations that implement CCDI’s data federation API harmonize data according to CCDI standards to ensure data are searchable.
 
-Details can be found on the CCDI Data Federation Resource [Wiki page](https://github.com/CBIIT/ccdi-federation-api-spec/wiki)
+If interested in becoming a member of the CCDI Data Federation Resource, please send an email to <a href="mailto:ncichildhoodcancerdatainitiative@mail.nih.gov" target="_blank" rel="noopener noreferrer">ncichildhoodcancerdatainitiative@mail.nih.gov</a>. 
 
 <a href="mailto:ncichildhoodcancerdatainitiative@mail.nih.gov" target="_blank" rel="noopener noreferrer">Contact us</a> with questions related to CCDI federated data or accessing the CCDI Data Ecosystem.
