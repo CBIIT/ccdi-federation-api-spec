@@ -28,7 +28,7 @@ Researchers can search for deidentified individual-level data through the API, w
 The API does not deliver files. Instead, it provides an open-access subset of the metadata (e.g., demographics) that match a user’s search criteria and indicates the location of the complete data set. The data are accessible according to the policies at each contributing resource.
  
 
-![image](https://github.com/jpat1546/ccdi-federation-api-spec/assets/23385872/4fe5203d-0c18-479b-a066-b9f5974cede9)"
+  ![image](https://github.com/CBIIT/ccdi-federation-api-spec/blob/rc-v1.1.0/docs/Federation_CCDI_Data_Access.5ddeaf97.png)"
 
 
 ## Additional Available Resources
