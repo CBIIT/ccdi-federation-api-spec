@@ -3364,6 +3364,10 @@ components:
             allOf:
             - $ref: '#/components/schemas/field.unowned.sample.LibraryStrategy'
             nullable: true
+          library_source_material:
+            allOf:
+            - $ref: '#/components/schemas/field.unowned.sample.LibrarySourceMaterial'
+            nullable: true
           preservation_method:
             allOf:
             - $ref: '#/components/schemas/field.unowned.sample.PreservationMethod'
