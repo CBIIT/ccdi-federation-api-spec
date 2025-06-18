@@ -1,4 +1,4 @@
-# CCDI Federation Data V1.0.0 Resource User Guide
+# CCDI Federation Data V1.2.0 Resource User Guide
 ---
 This User Guide provides information to understand the Data Federation Resource application programming interface (API) available to users.
 
