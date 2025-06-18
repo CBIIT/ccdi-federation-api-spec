@@ -6,7 +6,7 @@ This User Guide provides information to understand the Data Federation Resource 
 
 ### Retrieve All Subjects:
 Easily access a comprehensive list of subjects within the CCDI federated ecosystem.
-- **Filtering:** Refine your search by sex, race, ethnicity, identifiers, vital status, age at vital status, and unharmonized metadata fields.
+- **Filtering:** Refine your search by sex, race, ethnicity, subject ID, identifiers, vital status, age at vital status, and unharmonized metadata fields.
 
 ### Retrieve Specific Subject by ID:
 Quickly fetch detailed information about a specific subject using its unique ID (organization, namespace, and name).
@@ -17,6 +17,11 @@ Organize subjects by any metadata field and receive aggregated counts for better
 
 ### Summary Information for Subjects:
 Obtain summary statistics and high-level information for all subjects in the system.
+
+### Retrieving Associated Participant ID: 
+O.....
+
+### Retrieving Subject diagnosis: 
 
 ## Samples
 
@@ -33,6 +38,9 @@ Organize samples by any metadata field and receive aggregated counts for better 
 
 ### Summary Information for Samples:
 Get summary statistics and high-level information for all samples in the system.
+
+### Retrieving Sample diagnosis: 
+.... 
 
 ## Files
 
@@ -84,7 +92,7 @@ Quickly fetch detailed information about a specific organization using its uniqu
 Get detailed information about the API implementation for better integration and usage.
 
 ---
-The v1.0.0 release of the CCDI Data federation API has been designed to be fully functional, providing useful and accessible information to users. For detailed information on the limitations of this version, please visit (link to limitations doc in this folder)
+The v1.2.0 release of the CCDI Data federation API has been designed to be fully functional, providing useful and accessible information to users. For detailed information on the limitations of this version, please visit (link to limitations doc in this folder)
 
 These features and query capabilities are designed to enhance your experience and efficiency with the CCDI Data federation API. 
 
