@@ -1,35 +1,30 @@
 openapi: 3.0.3
 info:
-  title: 'CCDI Data Federation: Participating Nodes API'
-  description: |-
-    This is the concrete OpenAPI specification for the CCDI
-            Data Federation API—though this document contains all of the API calls
-            that CCDI Federation nodes must implement, it does not outline the
-            complete specification.
+  title: CCDI Data Federation Resource API
+  description: |
+    ## Overview
 
+    The Childhood Cancer Data Initiative (CCDI) Data Federation Resource API supports the
+    querying of federated pediatric cancer within the broader community. The goal
+    of the API is to support identification of pediatric cancer samples of interest
+    via a variety of query parameters.
+    The API is integrated with the [Childhood Participant Index (CPI) Service](https://ccdi.cancer.gov/ccdi-participant-index)
+    through "subject-mapping" endpoint.
+    ### CCDI Data Federation Participating Nodes API Access
     * Visit the [documentation homepage](https://cbiit.github.io/ccdi-federation-api)
       to view the complete set of requirements to maintain and deploy a CCDI
       Federation node.
     * Additionally, you can view the Swagger specification in a more traditional
       theme by visiting
-      [this link](https://editor.swagger.io/?url=https://cbiit.github.io/ccdi-federation-api/swagger.yml).
-    * To access CCDI Data Federation Resource, please visit
-      [this link](https://cbiit.github.io/ccdi-federation-api-aggregation/).
+      [this link](https://editor-next.swagger.io/?url=https://cbiit.github.io/ccdi-federation-api/swagger.yml).
+ 
   contact:
     name: Childhood Cancer Data Initiative support email
     email: NCIChildhoodCancerDataInitiative@mail.nih.gov
   version: v1.2.0
 servers:
-- url: https://ccdi.stjude.cloud/api/v1
-  description: St. Jude Children's Research Hospital CCDI API server
-- url: https://ccdifederation.pedscommons.org/api/v1
-  description: Pediatric Cancer Data Commons CCDI API server
-- url: https://ccdi.treehouse.gi.ucsc.edu/api/v1
-  description: UCSC Treehouse CCDI API server
-- url: https://ccdi.kidsfirstdrc.org/api/v1
-  description: KidsFirst CCDI API server
-- url: https://ccdi-ecdna.org/ccdi-federation/api/v1
-  description: Childhood Cancer Catalog of ecDNA CCDI API server
+  - url: https://federation.ccdi.cancer.gov/api/v1
+    description: CCDI Data Federation Resource API server
 paths:
   /subject:
     get:
@@ -183,7 +178,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Subjects'
+                $ref: '#/components/schemas/responses.SubjectsArray'
         '404':
           description: |-
             Not found.
@@ -244,7 +239,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Subject'
+                $ref: '#/components/schemas/responses.SubjectArray'
         '404':
           description: |-
             Not found.
@@ -278,7 +273,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.by.count.subject.Results'
+                $ref: '#/components/schemas/responses.by.count.subject.ResultsArray'
         '422':
           description: Unsupported field.
           content:
@@ -304,7 +299,189 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Summary'
+                $ref: '#/components/schemas/responses.SummaryArray'
+  /subject-mapping:
+    get:
+      tags:
+      - Subject
+      summary: Gets the subjects IDs known by this server.
+      description: |-
+        Finds the subjects known by this server and
+        returns domain ID/ID pair and all mapped organizational domain ID/ID 
+        pairs for each found subject ID. Find more information on
+        [Get Relevant
+        Domain IDs](https://participantindex-docs.ccdi.cancer.gov).
+
+        ### Pagination
+
+        This endpoint is paginated. Users may override the default pagination
+        parameters by providing one or more of the pagination-related query
+        parameters below.
+
+        ### Filtering
+
+        All harmonized (top-level) and unharmonized (nested under the
+        `metadata.unharmonized` key) metadata fields are filterable. To achieve
+        this, you can provide the field name as a [`String`]. Filtering follows the
+        following rules:
+
+        * For single-value metadata field, the subject is included in the results if
+        its value _exactly_ matches the query string. Matches are case-sensitive.
+        * For multiple-value metadata fields, the subject is included in the results
+        if any of its values for the field _exactly_ match the query string (a
+        logical OR [`||`]). Matches are case-sensitive.
+        * When the metadata field is `null` (in the case of singular or
+        multiple-valued metadata fields) or empty, the subject is not included.
+        * When multiple fields are provided as filters, a logical AND (`&&`) strings
+        together the predicates. In other words, all filters must match for a
+        subject to be returned. Note that this means that servers do not natively
+        support logical OR (`||`) across multiple fields: that must be done by
+        calling this endpoint with each of your desired queries and performing a
+        set union of those subjects out of band.
+
+        ### Ordering
+
+        This endpoint has default ordering requirements—those details are documented
+        in the `responses::Subjects` schema.
+      operationId: subject_cpi
+      parameters:
+      - name: sex
+        in: query
+        description: Matches any subject where the `sex` field matches the string provided.
+        required: false
+        schema:
+          type: string
+      - name: race
+        in: query
+        description: |-
+          Matches any subject where any member of the `race` field matches the
+          string provided.
+
+          **Note:** a logical OR (`||`) is performed across the values when
+          determining whether the subject should be included in the results.
+        required: false
+        schema:
+          type: string
+      - name: ethnicity
+        in: query
+        description: |-
+          Matches any subject where the `ethnicity` field matches the string
+          provided.
+        required: false
+        schema:
+          type: string
+      - name: identifiers
+        in: query
+        description: |-
+          Matches any subject where any member of the `identifiers` field matches
+          the string provided.
+
+          **Note:** a logical OR (`||`) is performed across the values when
+          determining whether the subject should be included in the results.
+        required: false
+        schema:
+          type: string
+      - name: vital_status
+        in: query
+        description: |-
+          Matches any subject where the `vital_status` field matches the string
+          provided.
+        required: false
+        schema:
+          type: string
+      - name: age_at_vital_status
+        in: query
+        description: |-
+          Matches any subject where the `age_at_vital_status` field matches the
+          string provided.
+        required: false
+        schema:
+          type: string
+      - name: depositions
+        in: query
+        description: |-
+          Matches any subject where any member of the `depositions` fields match
+          the string provided.
+
+          **Note:** a logical OR (`||`) is performed across the values when
+          determining whether the subject should be included in the results.
+        required: false
+        schema:
+          type: string
+      - name: metadata.unharmonized.<field>
+        in: query
+        description: |-
+          All unharmonized fields should be filterable in the same manner as harmonized fields:
+
+          * Filtering on a singular field should include the `Subject` in the results if the query exactly matches the value of that field for the `Subject` (case-sensitive).
+          * Filtering on field with multiple values should include the `Subject` in the results if the query exactly matches any of the values of the field for that `Subject` (case-sensitive).
+          * Unlike harmonized fields, unharmonized fields must be prefixed with `metadata.unharmonized`.
+
+          **Note:** this query parameter is intended to be symbolic of any unharmonized field. Because of limitations within Swagger UI, it will show up as a query parameter that can be optionally be submitted as part of a request within Swagger UI. Please keep in mind that the literal query parameter `?metadata.unharmonized.<field>=value` is not supported, so attempting to use it within Swagger UI will not work!
+        required: false
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: |-
+          The page to retrieve.
+
+          This is a 1-based index of a page within a page set. The value of `page`
+          **must** default to `1` when this parameter is not provided.
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      - name: per_page
+        in: query
+        description: |-
+          The number of results per page.
+
+          Each server can select its own default value for `per_page` when this
+          parameter is not provided. That said, the convention within the
+          community is to use `100` as a default value if any value is equally
+          reasonable.
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '404':
+          description: |-
+            Not found.
+            Servers that cannot provide line-level data should use this response rather than Forbidden (403), as there is no level of authorization that would allow one to access the information included in the API.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responses.Errors'
+              example:
+                errors:
+                - kind: UnshareableData
+                  entity: Subjects
+                  reason: Our agreement with data providers prohibits us from sharing line-level data.
+                  message: 'Unable to share data for subjects: our agreement with data providers prohibits us from sharing line-level data.'
+        '422':
+          description: Invalid query or path parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/responses.Errors'
+              example:
+                errors:
+                - kind: InvalidParameters
+                  parameters:
+                  - page
+                  - per_page
+                  reason: Unable to calculate offset.
+                  message: 'Invalid value for parameters ''page'' and ''per_page'': unable to calculate offset.'
   /sample:
     get:
       tags:
@@ -520,7 +697,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Samples'
+                $ref: '#/components/schemas/responses.SamplesArray'
         '404':
           description: |-
             Not found.
@@ -581,7 +758,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Sample'
+                $ref: '#/components/schemas/responses.SampleArray'
         '404':
           description: |-
             Not found.
@@ -615,7 +792,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.by.count.sample.Results'
+                $ref: '#/components/schemas/responses.by.count.sample.ResultsArray'
         '422':
           description: Unsupported field.
           content:
@@ -641,7 +818,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Summary'
+                $ref: '#/components/schemas/responses.SummaryArray'
   /file:
     get:
       tags:
@@ -776,7 +953,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Files'
+                $ref: '#/components/schemas/responses.FilesArray'
         '404':
           description: |-
             Not found.
@@ -837,7 +1014,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.File'
+                $ref: '#/components/schemas/responses.FileArray'
         '404':
           description: |-
             Not found.
@@ -871,7 +1048,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.by.count.file.Results'
+                $ref: '#/components/schemas/responses.by.count.file.ResultsArray'
         '422':
           description: Unsupported field.
           content:
@@ -897,7 +1074,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Summary'
+                $ref: '#/components/schemas/responses.SummaryArray'
   /metadata/fields/subject:
     get:
       tags:
@@ -911,7 +1088,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.metadata.FieldDescriptions'
+                $ref: '#/components/schemas/responses.metadata.FieldDescriptionsArray'
   /metadata/fields/sample:
     get:
       tags:
@@ -925,7 +1102,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.metadata.FieldDescriptions'
+                $ref: '#/components/schemas/responses.metadata.FieldDescriptionsArray'
   /metadata/fields/file:
     get:
       tags:
@@ -939,7 +1116,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.metadata.FieldDescriptions'
+                $ref: '#/components/schemas/responses.metadata.FieldDescriptionsArray'
   /namespace:
     get:
       tags:
@@ -953,7 +1130,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Namespaces'
+                $ref: '#/components/schemas/responses.NamespacesArray'
   /namespace/{organization}/{namespace}:
     get:
       tags:
@@ -980,7 +1157,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Namespace'
+                $ref: '#/components/schemas/responses.NamespaceArray'
         '404':
           description: Not found.
           content:
@@ -1005,7 +1182,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Organizations'
+                $ref: '#/components/schemas/responses.OrganizationsArray'
   /organization/{name}:
     get:
       tags:
@@ -1026,7 +1203,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Organization'
+                $ref: '#/components/schemas/responses.OrganizationArray'
         '404':
           description: Not found.
           content:
@@ -1051,7 +1228,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Information'
+                $ref: '#/components/schemas/responses.InformationArray'
   /sample-diagnosis:
     get:
       tags:
@@ -1275,7 +1452,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Samples'
+                $ref: '#/components/schemas/responses.SamplesArray'
         '404':
           description: |-
             Not found.
@@ -1474,7 +1651,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/responses.Subjects'
+                $ref: '#/components/schemas/responses.SubjectsArray'
         '404':
           description: |-
             Not found.
@@ -18723,6 +18900,10 @@ components:
       required:
       - errors
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         errors:
           type: array
           items:
@@ -18730,8 +18911,13 @@ components:
           description: The errors within this response.
     responses.File:
       allOf:
-      - $ref: '#/components/schemas/models.File'
       - type: object
+        properties:
+          source:
+            type: string
+            description: |-
+              A reference to a Federation Node.
+      - $ref: '#/components/schemas/models.File'
       description: A response representing a single [`File`](models::File).
     responses.Files:
       type: object
@@ -18757,6 +18943,10 @@ components:
       - summary
       - data
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         summary:
           $ref: '#/components/schemas/responses.entity.Summary'
         data:
@@ -18776,6 +18966,10 @@ components:
       - api
       - data
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         server:
           $ref: '#/components/schemas/responses.info.server.Information'
         api:
@@ -18783,14 +18977,28 @@ components:
         data:
           $ref: '#/components/schemas/responses.info.data.Information'
     responses.Namespace:
-      $ref: '#/components/schemas/models.Namespace'
+      allOf:
+      - type: object
+        properties:
+          source:
+            type: string
+            description: |-
+              A reference to a Federation Node.
+      - $ref: '#/components/schemas/models.Namespace'
     responses.Namespaces:
       type: array
       items:
         $ref: '#/components/schemas/models.Namespace'
       description: A response for describing namespaces.
     responses.Organization:
-      $ref: '#/components/schemas/models.Organization'
+      allOf:
+      - type: object
+        properties:
+          source:
+            type: string
+            description: |-
+              A reference to a Federation Node.
+      - $ref: '#/components/schemas/models.Organization'
     responses.Organizations:
       type: array
       items:
@@ -18798,8 +19006,13 @@ components:
       description: A response for describing organizations.
     responses.Sample:
       allOf:
-      - $ref: '#/components/schemas/models.Sample'
       - type: object
+        properties:
+          source:
+            type: string
+            description: |-
+              A reference to a Federation Node.
+      - $ref: '#/components/schemas/models.Sample'
       description: A response representing a single [`Sample`](models::Sample).
     responses.Samples:
       type: object
@@ -18825,6 +19038,10 @@ components:
       - summary
       - data
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         summary:
           $ref: '#/components/schemas/responses.entity.Summary'
         data:
@@ -18838,8 +19055,13 @@ components:
             $ref: '#/components/schemas/models.gateway.Named'
     responses.Subject:
       allOf:
-      - $ref: '#/components/schemas/models.Subject'
       - type: object
+        properties:
+          source:
+            type: string
+            description: |-
+              A reference to a Federation Node.
+      - $ref: '#/components/schemas/models.Subject'
       description: A response representing a single [`Subject`](models::Subject).
     responses.Subjects:
       type: object
@@ -18865,6 +19087,10 @@ components:
       - summary
       - data
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         summary:
           $ref: '#/components/schemas/responses.entity.Summary'
         data:
@@ -18882,6 +19108,10 @@ components:
       required:
       - counts
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         counts:
           $ref: '#/components/schemas/responses.summary.Counts'
     responses.by.count.ValueCount:
@@ -18908,6 +19138,10 @@ components:
       - missing
       - values
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         total:
           type: integer
           description: The total number of counts in this result set.
@@ -18935,6 +19169,10 @@ components:
       - missing
       - values
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         total:
           type: integer
           description: The total number of counts in this result set.
@@ -18961,6 +19199,10 @@ components:
       - missing
       - values
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         total:
           type: integer
           description: The total number of counts in this result set.
@@ -19308,6 +19550,10 @@ components:
       required:
       - fields
       properties:
+        source:
+          type: string
+          description: |-
+            A reference to a Federation Node.
         fields:
           type: array
           items:
@@ -19322,6 +19568,134 @@ components:
         total:
           type: integer
           minimum: 0
+    responses.SubjectsArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple subjects.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Subjects'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.SubjectArray:
+      type: array
+      description: |-
+        An aggregated response representing collection of single subjects.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Subject'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.by.count.subject.ResultsArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple groups by counts.
+        known by the servers.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.by.count.subject.Results'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.SamplesArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple samples.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Samples'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.SampleArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple samples.
+      items:
+        anyOf:
+         - $ref: '#/components/schemas/responses.Sample'
+         - $ref: '#/components/schemas/responses.Errors'
+    responses.by.count.sample.ResultsArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple multiple groups by counts.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.by.count.sample.Results'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.SummaryArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple summaries.
+      items:
+        $ref: '#/components/schemas/responses.Summary'
+    responses.FilesArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple files.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Files'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.FileArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple file.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.File'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.by.count.file.ResultsArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple groups by counts.
+        known by the servers.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.by.count.file.Results'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.metadata.FieldDescriptionsArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple fields.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.metadata.FieldDescriptions'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.NamespacesArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple namespaces.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Namespaces'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.NamespaceArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple namespaces.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Namespace'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.OrganizationsArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple namespaces.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Organizations'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.OrganizationArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple namespaces.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Organization'
+          - $ref: '#/components/schemas/responses.Errors'
+    responses.InformationArray:
+      type: array
+      description: |-
+        An aggregated response representing multiple information objects.
+      items:
+        anyOf:
+          - $ref: '#/components/schemas/responses.Information'
+          - $ref: '#/components/schemas/responses.Errors'
 tags:
 - name: Subject
   description: Subjects within the CCDI federated ecosystem.
